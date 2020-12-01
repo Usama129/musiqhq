@@ -18,9 +18,6 @@
     <ClCompile Include="musiqhq.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ClientRequest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Genius.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -30,9 +27,21 @@
     <ClCompile Include="Util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GeniusHit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Request.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="audd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Genius.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="audd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

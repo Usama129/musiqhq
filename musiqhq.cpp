@@ -4,7 +4,7 @@
 #include <map>
 #include <set>
 #include <string>
-#include "ClientRequest.cpp"
+#include "Request.cpp"
 #include "Genius.h"
 
 using namespace web;
@@ -15,8 +15,7 @@ using namespace std;
 
 void handle_get(http_request httpRequest)
 {
-    cout << "\nGET\n";
-
+    wcout << "\nGET request processed for " << httpRequest.remote_address() << endl;
     auto answer = json::value::object();
 
     json::value requestBody = NULL;
@@ -37,16 +36,48 @@ void handle_get(http_request httpRequest)
         return;
     }
 
-    ClientRequest* request = nullptr;
+    Request* request = nullptr;
     
     // Search Request
     if (absURL == "/musiqhq/search") {
-        request = new SearchRequest(requestBody);
+        
+        try {
+            request = new SearchRequest(requestBody);
+        }
+        catch (exception& e) {
+            cout << e.what();
+            answer[U("bad_search")] = json::value(to_string_t("Check token and search key"));
+            httpRequest.reply(status_codes::BadRequest, answer);
+            return;
+        }
 
     }
 
-    // Lyrics Request
-    //if (absURL == "/musiqhq/lyrics")
+    // Song description Request
+    if (absURL == "/musiqhq/song/description") {
+        try {
+            request = new DescriptionRequest(requestBody);
+        }
+        catch (exception& e) {
+            cout << e.what();
+            answer[U("bad_song_request")] = json::value(to_string_t("Check token and song path"));
+            httpRequest.reply(status_codes::BadRequest, answer);
+            return;
+        }
+    }
+
+    //Lyrics
+    if (absURL == "/musiqhq/song/lyrics") {
+        try {
+            request = new LyricsRequest(requestBody);
+        }
+        catch (exception& e) {
+            cout << e.what();
+            answer[U("bad_lyrics_request")] = json::value(to_string_t("Check token and title"));
+            httpRequest.reply(status_codes::BadRequest, answer);
+            return;
+        }
+    }
 
     if (request == nullptr) {
         answer[U("bad_request")] = json::value(to_string_t("Server did not find a matching endpoint"));
@@ -55,7 +86,8 @@ void handle_get(http_request httpRequest)
     }
 
     if (request->verifyToken()) {
-        answer = request->execute().to_json();
+        request->execute();
+        answer = request->getResponse()->to_json();
         httpRequest.reply(status_codes::OK, answer);
         delete request;
         return;
@@ -66,8 +98,7 @@ void handle_get(http_request httpRequest)
         delete request;
         return;
     }
-
-    //Final
+    
     answer[U("bad_request")] = json::value(to_string_t("Server did not find a matching endpoint"));
     httpRequest.reply(status_codes::BadRequest, answer);
 
@@ -86,7 +117,7 @@ int main()
     {
         listener
             .open()
-            .then([&listener]() {cout << "Listening!\n"; })
+            .then([&listener]() {wcout << "Listening at " << listener.uri().to_string(); })
             .wait();
 
         while (true);
